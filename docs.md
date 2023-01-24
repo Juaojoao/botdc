@@ -1,3 +1,11 @@
+## Base
+const { Client, Intents } = require('discord.js');
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
+const config = require("./config.json");
+
+## Adicionar Bot
+// discordapp.com/oauth2/authorize?=&client_id=1066454659620945972&scope=bot&permissions=8 
+
 
 ## Ao inicar
 client.on('ready', () => {

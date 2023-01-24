@@ -1,8 +1,13 @@
-const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const { Client, GatewayIntentBits, Events, messageCreate } = require('discord.js');
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers,
+    ]
+});
 const config = require("./config.json");
-// discordapp.com/oauth2/authorize?=&client_id=1066454659620945972&scope=bot&permissions=8 
-// ID do bot para adicioanr
 
 client.on('ready', () => {
     console.log(`Bot foi iniciado, com ${client.users.cache.size} usuários, em ${client.channels.cache.size} Canais, em ${client.guilds.cache.size} servidores`);
@@ -18,5 +23,15 @@ client.on(Events.InteractionCreate, async interaction => {
         interaction.editReply(`Meu ping está em: **${sent.client.ws.ping}ms.**`);
     }
 });
+
+client.on("message", async messageCreate => {
+    console.log(messageCreate)
+    if (messageCreate.content === "clear") {
+        messageCreate.channel.bulkDelete(100)
+            .then(messages => console.log(`Deleted ${messages.size} messages`))
+            .catch(console.error);
+    }
+});
+
 
 client.login(config.token);
