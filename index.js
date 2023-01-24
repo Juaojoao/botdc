@@ -1,36 +1,48 @@
-const { Client, GatewayIntentBits, Events } = require('discord.js');
-const config = require('./config.json')
-const client = new Client({ intents: 38671 });
+const fs = require("fs");
+const path = require("path");
+const { Client, Collection, GatewayIntentBits, Events } = require("discord.js");
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const { token } = require("./config.json");
 
+
+// filtrar somente arquivos em JS
+client.commands = new Collection();
+const commandsPath = path.join(__dirname, "commands");
+const commandFiles = fs
+  .readdirSync(commandsPath)
+  .filter((file) => file.endsWith(".js"));
+
+for (const file of commandFiles) {
+  const filePath = path.join(commandsPath, file);
+  const command = require(filePath);
+  if ("data" in command && "execute" in command)
+    client.commands.set(command.data.name, command);
+}
+//
+
+// Ao ligar o bot
 client.on(Events.ClientReady, () => {
-  client.user.setPresence({ 
-    activities: [{ 
-      name: 'Master Mu' 
-    }], 
-    status: 'online' 
-  });
-  client.user.setUsername('MuBot');
-  
-  console.log(`Bot foi iniciado, com ${client.users.cache.size} usuários, em ${client.channels.cache.size} Canais, em ${client.guilds.cache.size} servidores`);
+  console.log(`👌😎 tudo ok ${client.user.tag}`);
 });
+//
 
+// Interação com os comandos em "/"
 client.on(Events.InteractionCreate, async (interaction) => {
   if (!interaction.isChatInputCommand()) return;
-
-  if (interaction.commandName === 'ping') {
-    await interaction.reply(`Meu ping está em: **${client.ws.ping}ms.**`);
+  const command = interaction.client.commands.get(interaction.commandName);
+  if (!command) {
+    console.error(`No command matching ${interaction.commandName} was found.`);
+    return;
+  }
+  try {
+    await command.execute(interaction);
+  } catch (err) {
+    console.error(err);
+    await interaction.reply({
+      content: "Ups.. me deparei com um error, tente novamente mais tarde!",
+      ephemeral: true,
+    });
   }
 });
 
-client.on(Events.MessageCreate, async (message) => {
-  if (message.content.startsWith("!clear")) {
-    let args = message.content.split(" ").slice(1);
-    let num = parseInt(args[0]);
-    if(!num) return message.reply("please provide a number of messages to delete")
-    message.channel.bulkDelete(num)
-      .then(messages => console.log(`Bulk deleted ${messages.size} messages`))
-      .catch(console.error);
-  }
-});
-
-client.login(config.token);
+client.login(token);
