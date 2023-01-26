@@ -24,8 +24,23 @@ client.on("ready", () => {
   console.log(`🔥 Estou online em ${client.user.username}!`);
 });
 
-client.slashCommands = new Discord.Collection();
+client.on("guildMemberAdd", (member) => {
+  let canalLogs = "1066775027959214171";
+  if (!canalLogs) return;
 
+  let embed = new Discord.EmbedBuilder()
+    .setColor("Green")
+    .setThumbnail(member.user.displayAvatarURL({ dynamic: true }))
+    .setTitle("Boas-vindas 🙌")
+    .setDescription(
+      `> Olá ${member}! \nSeja bem-vindo ao servidor\` ${member.guild.name}\`\nATualmente estamos com\`${member.guild.memberCount} \`membros`
+    );
+  member.guild.channels.cache
+    .get(canalLogs)
+    .send({ embeds: [embed], content: `${member}` });
+});
+
+client.slashCommands = new Discord.Collection();
 require("./handler")(client);
 
 client.login(config.token);
