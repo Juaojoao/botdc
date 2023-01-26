@@ -32,9 +32,7 @@ module.exports = {
           name: interaction.guild.name,
           iconURL: interaction.guild.iconURL({ dynamic: true }),
         })
-        .setDescription(
-          `Resgatar Cargo **${cargo.name}**.`
-        );
+        .setDescription(`Resgatar Cargo **${cargo.name}**.`);
 
       let botao = new Discord.ActionRowBuilder().addComponents(
         new Discord.ButtonBuilder()
